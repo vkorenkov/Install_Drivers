@@ -1,0 +1,454 @@
+﻿<Window x:Class="Install_Drivers.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Install_Drivers"
+        mc:Ignorable="d"
+        Title="Установка драйверов" 
+        Width="800"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Style="{DynamicResource WindowStyle}" Height="426.064">
+
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <local:CutPathConverter x:Key="CutPathConverter"/>
+        <local:SpaceToTextConverter x:Key="SpaceToTextConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="353*"/>
+            <RowDefinition Height="44*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="315*"/>
+            <ColumnDefinition Width="479*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border
+            BorderThickness="0.5"
+            BorderBrush="White"
+            CornerRadius="5 5 5 5"
+            Margin="1,1,477,1" Grid.ColumnSpan="2">
+            <StackPanel 
+                x:Name="InstallStack"
+                IsEnabled="{Binding ControlEnable}"
+                Grid.Column="0" 
+                Grid.Row="0">
+
+                <DockPanel>
+                    <TextBlock
+                        Text="Модель устройства:"
+                        Margin="10"/>
+
+                    <ComboBox
+                        Style="{DynamicResource ComboBoxStyle}"
+                        SelectedItem="{Binding ModelName}"
+                        ItemsSource="{Binding DevicesModels}"
+                        Margin="0 0 5 0"
+                        VerticalAlignment="Center"
+                        Height="20"
+                        FontSize="11">
+                        <!--<ComboBoxItem>
+                            <Border>
+                                <StackPanel>
+                                    <TextBlock
+                                        Text="{Binding}"/>
+                                </StackPanel>
+                            </Border>
+                        </ComboBoxItem>-->
+                    </ComboBox>
+
+                </DockPanel>
+
+                <DockPanel>
+                    <Button
+                        Width="70"
+                        Height="20"
+                        HorizontalAlignment="Left"
+                        Margin="10 0 0 10"
+                        Content="Ok"
+                        Command="{Binding Install}">
+                        
+                        <Button.Resources>
+                            <Style BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=lvDriversPath, Path=Items.Count}" Value="0">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Resources>
+
+                    </Button>
+
+                    <Button
+                        Width="70"
+                        Height="20"
+                        HorizontalAlignment="Left"
+                        Margin="10 0 0 10"
+                        Content="Обновить"
+                        Command="{Binding Refresh}"/>
+
+                    <CheckBox
+                        Margin="10 5 0 0"
+                        IsChecked="{Binding CheckDownload}">
+                        <TextBlock
+                            Text="Скачать драйверы перед установкой"
+                            TextWrapping="Wrap"/>
+                    </CheckBox>
+
+                </DockPanel>
+                
+                <TextBlock
+                    Text="Выбор папки с драйверами"
+                    Margin="10 0 0 10"/>
+                
+                <DockPanel>
+                    
+                    <Button
+                        Width="70"
+                        Height="20"
+                        HorizontalAlignment="Left"
+                        Margin="10 0 0 10"
+                        Content="Обзор"
+                        Command="{Binding OpenFolder}"/>
+                    
+                    <Button
+                        Width="70"
+                        Height="20"
+                        HorizontalAlignment="Left"
+                        Margin="10 0 0 10"
+                        Content="Установить"
+                        Command="{Binding Install}">
+
+                        <Button.Resources>
+                            <Style BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=txbDriversPath, Path=Text}" Value="Не выбрано">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=txbDriversPath, Path=Text}" Value="">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Resources>
+
+                    </Button>
+
+                </DockPanel>
+
+                <TextBlock
+                Name="txbDriversPath"
+                TextWrapping="Wrap"
+                Margin="10 0 0 10"
+                Text="{Binding DriversPath, Converter={StaticResource SpaceToTextConverter}}">
+
+                    <TextBlock.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Green"/>
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="Не выбрано">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Resources>
+
+                </TextBlock>
+
+                <TextBlock
+                Text="Выбор драйвера вручную"
+                Margin="10 0 0 10"/>
+
+                <Button
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Left"
+                Content="Обзор"
+                Margin="10 0 0 10"
+                Command="{Binding OpenFile}"/>
+
+                <TextBlock
+                TextWrapping="Wrap"
+                Margin="10 0 0 10"
+                Text="{Binding DriverPath, Converter={StaticResource SpaceToTextConverter}}">
+
+                    <TextBlock.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Green"/>
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="Не выбрано">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Resources>
+
+                </TextBlock>
+
+            </StackPanel>
+        </Border>
+
+        <Border
+            Grid.Column="1"
+            BorderThickness="0 0.5 0.5 0.5"
+            BorderBrush="White"
+            CornerRadius="5 5 5 5"
+            Margin="0 1 1 1">
+            <StackPanel 
+                Grid.Column="1">
+
+                <TextBlock
+                Text="Найденные драйверы"
+                Margin="10 0 0 0"/>
+
+                <ListView
+                    Name="lvDriversPath"
+                    Height="250"
+                    VerticalAlignment="Top"
+                    Margin="10"
+                    ItemsSource="{Binding DriversProp}">
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <CheckBox 
+                                    IsChecked="{Binding CheckedDrv}" 
+                                    Content="{Binding DriverPath, Converter={StaticResource CutPathConverter}}">
+
+                                </CheckBox>
+                                <ProgressBar
+                                    Style="{DynamicResource ProgressBarStyle}" 
+                                    Minimum="0"
+                                    Maximum="{Binding InfProgBarMax}"
+                                    Value="{Binding InfProgBarNow}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                </ListView>
+
+                <Button
+                    Grid.Row="1"
+                    Width="70"
+                    Height="20"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,85,0"
+                    Content="Снять все"
+                    Command="{Binding Mark}"
+                    CommandParameter="-">
+
+                    <Button.Resources>
+                        <Style BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
+                            <Setter Property="IsEnabled" Value="True"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=InstallStack, Path=IsEnabled}" Value="False">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Resources>
+
+                </Button>
+
+                <Button
+                    Grid.Row="1"
+                    Width="70"
+                    Height="20"
+                    HorizontalAlignment="Right"
+                    Margin="0,-20,160,0"
+                    Content="Все"
+                    Command="{Binding Mark}"
+                    CommandParameter="+">
+
+                    <Button.Resources>
+                        <Style BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
+                            <Setter Property="IsEnabled" Value="True"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=InstallStack, Path=IsEnabled}" Value="False">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Resources>
+
+                </Button>
+
+                <Button
+                    Grid.Row="1"
+                    Width="70"
+                    Height="20"
+                    HorizontalAlignment="Right"
+                    Margin="0,-20,10,0"
+                    Content="Отмена"
+                    Command="{Binding Abort}"
+                    CommandParameter="-">
+
+                    <Button.Resources>
+                        <Style BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
+                            <Setter Property="IsEnabled" Value="False"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=InstallStack, Path=IsEnabled}" Value="False">
+                                    <Setter Property="IsEnabled" Value="True"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Resources>
+                    
+                </Button>
+
+                <TextBlock
+                    Margin="10 -30 250 0"
+                    Text="общий процесс выполнения"/>
+                
+                <ProgressBar
+                    Height="10"
+                    Width="200"
+                    Visibility="Visible"
+                    IsIndeterminate="{Binding Indeterminated}"
+                    Margin="10 -10 0 5"
+                    Maximum="{Binding AllProgBarMax}"
+                    Value="{Binding AllProgBarNow}"
+                    Style="{DynamicResource ProgressBarStyle}"/>
+
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Margin="10 0 0 0"  
+                    Text="{Binding InstallMsg}"
+                    VerticalAlignment="Center">
+
+                    <TextBlock.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="White"/>
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="Установка: завершена">
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="Установка: отменена">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="Скачивание: отменено">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Resources>
+
+                </TextBlock>
+
+            </StackPanel>
+        </Border>
+
+        <Border
+            Grid.Row="1"
+            Grid.Column="0"
+            BorderBrush="White"
+            BorderThickness="0.5"
+            CornerRadius="5"
+            Margin="1,1,477,1" Grid.ColumnSpan="2">
+            <StackPanel
+                Orientation="Horizontal">
+
+                <Button
+            Grid.Row="1"
+            Width="70"
+            Height="20"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Content="Выход"
+            Margin="10 0 0 0"
+            Command="{Binding Exit}"/>
+
+                <Button
+            Grid.Row="1"
+            Width="70"
+            Height="20"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Margin="5 0 0 0"
+            Command="{Binding Restart}"
+            CommandParameter="R">
+                    <TextBlock
+                Text="Перезагрузка"
+                FontSize="10.5"/>
+                </Button>
+
+                <Button
+            Grid.Row="1"
+            Width="70"
+            Height="20"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Content="Выключить"
+            Margin="5 0 0 0"
+            Command="{Binding Restart}"
+            CommandParameter="S"/>
+
+                <Button
+            Grid.Row="1"
+            Width="70"
+            Height="20"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="5 0 0 0"
+            Content="Очистить"
+            Command="{Binding Clear}"/>
+            </StackPanel>
+        </Border>
+
+        <Border
+            Grid.Row="1"
+            Grid.Column="1"
+            BorderThickness="0.5"
+            BorderBrush="White"
+            CornerRadius="5 5 5 5"
+            Margin="1 1 1 1">
+
+            <StackPanel>
+
+                <Button
+                    Width="5"
+                    Height="5"
+                    Margin="0 -21 33 0"
+                    Template="{DynamicResource ButtonTemp}"
+                    Command="{Binding Egg}">
+                    <Button.Resources>
+                        <ControlTemplate x:Key="ButtonTemp" TargetType="Button">
+                            <Border
+                                x:Name="border"
+                                BorderBrush="#1d1d1d"
+                                BorderThickness="0"
+                                Background="#1d1d1d"
+                                CornerRadius="3">
+                                <ContentPresenter 
+                                    x:Name="contentPresenter" 
+                                    ContentTemplate="{TemplateBinding ContentTemplate}" 
+                                    Content="{TemplateBinding Content}" 
+                                    ContentStringFormat="{TemplateBinding ContentStringFormat}" 
+                                    Focusable="False" 
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                    Margin="{TemplateBinding Padding}" 
+                                    RecognizesAccessKey="True" 
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" TargetName="border" Value="#1d1d1d"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+
+</Window>
